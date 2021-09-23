@@ -6,6 +6,7 @@ import {terser} from "rollup-plugin-terser";
 import license from "rollup-plugin-license";
 import path from 'path';
 import sass from 'rollup-plugin-sass';
+import copy from 'rollup-plugin-copy'
 
 const isProd = (process.env.BUILD === 'production');
 
@@ -36,6 +37,12 @@ export default {
           encoding: 'utf-8', // Default is utf-8.
         },
       },
+    }),
+    copy({
+      targets: [
+        {src: 'manifest.json', dest: 'dist'},
+        {src: 'versions.json', dest: 'dist'}
+      ]
     })
   ]
 } as RollupOptions
