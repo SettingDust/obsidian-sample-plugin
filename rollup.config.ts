@@ -5,8 +5,8 @@ import {RollupOptions} from 'rollup';
 import {terser} from "rollup-plugin-terser";
 import license from "rollup-plugin-license";
 import path from 'path';
-import sass from 'rollup-plugin-sass';
-import copy from 'rollup-plugin-copy'
+import copy from 'rollup-plugin-copy';
+import sass from 'sass';
 
 const isProd = (process.env.BUILD === 'production');
 
@@ -17,7 +17,7 @@ export default {
     dir: './dist',
     sourcemap: 'inline',
     sourcemapExcludeSources: isProd,
-    format: 'esm',
+    format: 'cjs',
     exports: 'default'
   },
   external: ['obsidian'],
@@ -28,7 +28,6 @@ export default {
     terser({
       format: {comments: false}
     }),
-    sass(),
     license({
       thirdParty: {
         includePrivate: true,
@@ -41,7 +40,18 @@ export default {
     copy({
       targets: [
         {src: 'manifest.json', dest: 'dist'},
-        {src: 'versions.json', dest: 'dist'}
+        {src: 'versions.json', dest: 'dist'},
+        {
+          src: 'styles.scss',
+          dest: 'dist',
+          transform: (contents) =>
+            sass.renderSync({
+              data: contents.toString(),
+              outputStyle: "compressed",
+              sourceMap: !isProd
+            }).css.toString(),
+          rename: (name) => `${name}.css`
+        }
       ]
     })
   ]
